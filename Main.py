@@ -7,12 +7,12 @@ import maskpass
 
 class Manage():
     def __init__(self):
-        self.db = mysql.connector.connect(host = 'localhost', user = 'root', passwd = '*********', database = '#######')
+        self.db = mysql.connector.connect(host = 'localhost', user = 'root', passwd = '######', database = 'rest_manage')
         self.mycursor = self.db.cursor(buffered=True)
         
     def begin(self, d=0):
         if d == 1:
-            print('\t\t\t', fontstyle.apply('\n\t\t\tRestaurant Management System', 'bold/Italic/blue'))
+            print('\t\t\t', fontstyle.apply('\n\t\t\tWelcome to King\'s Restaurant', 'bold/Italic/blue'))
         
         print(fontstyle.apply('\nYou are:\n1. Customer\n2. Owner\n3. Exit', 'Italic/darkcyan'))
         
@@ -22,7 +22,7 @@ class Manage():
         elif self.ask == 2:
             self.owner()
         elif self.ask == 3:
-            print(fontstyle.apply('\n\t\tThankYou!', 'Italic/blue'))
+            print(fontstyle.apply(f"\n\t{'※'*5}ThankYou!{'※'*5}", 'Italic/blue'))
             sys.exit()
         else:
             print(fontstyle.apply("\n\nWrong Input!\n", 'Italic/red'))
@@ -51,7 +51,6 @@ class Manage():
             if i[0] == id:
                 if i[1] == passw:
                     self.ownerID = i[0]
-                    self.ownerPASS = i[1]
                     self.OwnerWindow(d = 1)
                     break
                 else:
@@ -152,31 +151,32 @@ class Manage():
         if d == 1:
             self.mycursor.execute(f'Select Name from customerdet where username = "{self.CustUSER}"')
             
-            print(fontstyle.apply(f"\n{'🍴'*60}\n\t\t\tWelcome {[i[0] for i in self.mycursor][0]}! :)\n", 'Italic/cyan'))
+            print(fontstyle.apply(f"\n{'🍴'*60}\n\t\t\t\t\tWelcome {[i[0] for i in self.mycursor][0]}! :)\n", 'Italic/cyan'))
         
         print(fontstyle.apply('\nChoose:\n1. Show Menu\n2. Place Order\n3. Exit', 'Italic/darkcyan'))
         ask = input(fontstyle.apply("\nYour Choice: ", 'Italic/purple'))
         if ask == "1":
-            self.mycursor.execute('Select * from foods')
+            self.mycursor.execute('Select * from menu')
             z=[['Item Code', 'Name', 'Price(₹)']]
             c = 1
             for i in self.mycursor:
                 z.append([c, i[0], i[1]])
                 c+=1
-            print('\n'*3,tabulate(z, headers='firstrow', tablefmt='fancy_grid'))
+            print('\n'*3)
+            print(tabulate(z, headers='firstrow', tablefmt='fancy_grid'))
             print("\n")
             self.CustWindow()
         elif ask == "2":
             self.order()
         elif ask == "3":
-            print(fontstyle.apply("\n\t\tThankYou\n", 'Italic/blue'))
+            print(fontstyle.apply(f"\n\t{'※'*5}ThankYou{'※'*5}\n", 'Italic/blue'))
             self.begin()
         else:
             
             print(fontstyle.apply("Wrong Input!", 'Italic/red'))
             self.CustWindow()
     def order(self):
-        self.mycursor.execute('Select * from foods')
+        self.mycursor.execute('Select * from menu')
         foods = self.mycursor.fetchall()
         self.d = []
         while 1:
@@ -202,7 +202,7 @@ class Manage():
     def bill(self):
         print('\n'*3)
         z = 0
-        print(f'\tXYZ Pure Veg Restaurant\n\t\t{str(DT.datetime.now().strftime("%d/%m/%Y"))}\n\t\t{str(DT.datetime.now().strftime("%X"))}')
+        print(f'\t      King\'s Restaurant\n\t\t{str(DT.datetime.now().strftime("%d/%m/%Y"))}\n\t\t{str(DT.datetime.now().strftime("%X"))}')
         for i in self.d:
             z+=i[2]
         self.d.extend([[],['', '_________________________', '_______'],['', 'Total', z]])
@@ -213,7 +213,7 @@ class Manage():
         
         print(tabulate(self.d, headers = ['Item', 'Quantity', 'Price'], tablefmt="outline"))
         
-        print(fontstyle.apply("\n\t\tThankyou for ordering!!", 'Italic/cyan'))
+        print(fontstyle.apply(f"\n\t{'※'*5}Thankyou for ordering!!{'※'*5}", 'Italic/cyan'))
         self.CustWindow()
 
 #######################################################################################################    
@@ -221,15 +221,16 @@ class Manage():
         if d == 1:
             print('\n\n','⟫⟪'*60)
             
-            print(fontstyle.apply("\t\t\tWelcome Sir!!", 'bold/Italic/cyan'))
+            print(fontstyle.apply("\t\t\t\t\tWelcome Sir!!", 'bold/Italic/cyan'))
         print(fontstyle.apply('\n\nChoose:\n1. Show Menu\n2. Add an Item\n3. Remove an Item\n4. Update an Item\n5. Add an account\n6. Change login details\n7. Remove an account\n8. Exit\n', 'Italic/darkcyan'))
         ask = input(fontstyle.apply("Your Choice: ", 'Italic/purple'))
         if ask == "1":
-            self.mycursor.execute('Select * from foods')
+            self.mycursor.execute('Select * from menu')
             z=[['Name', 'Price(₹)']]
             for i in self.mycursor:
                 z.append(i)
-            print('\n', tabulate(z, headers='firstrow', tablefmt='fancy_grid'))
+            print('\n')
+            print(tabulate(z, headers='firstrow', tablefmt='fancy_grid'))
             print("\n")
             self.OwnerWindow()
         
@@ -247,7 +248,7 @@ class Manage():
         elif ask == "7":
             self.removeAcc()
         elif ask == '8':
-            print(fontstyle.apply("\n\t\tThankYou\n", 'Italic/blue'))
+            print(fontstyle.apply(f"\n\t{'※'*5}ThankYou{'※'*5}\n", 'Italic/blue'))
             self.begin()
         else:
             
@@ -258,7 +259,7 @@ class Manage():
     def additem(self):
         n = input("Enter the name of the item: ")
         p = int(input("Enter the price of the item: "))
-        self.mycursor.execute(f"Insert into foods values('{n}','{p}')")
+        self.mycursor.execute(f"Insert into menu values('{n}','{p}')")
         self.db.commit()
         print(fontstyle.apply("Item added successfully!!\n", 'Italic/green'))
         
@@ -275,7 +276,7 @@ class Manage():
     
     def remove(self):
         n = input("Enter the name of the item to remove: ")
-        self.mycursor.execute(f'Delete from foods where Name = "{n}"')
+        self.mycursor.execute(f'Delete from menu where Name = "{n}"')
         self.db.commit()
         print(fontstyle.apply("Item removed successfully!!\n", 'Italic/green'))
         
@@ -293,7 +294,7 @@ class Manage():
     def update(self):
         n = input("Enter the name of the item: ")
         p = int(input("Enter the new price: "))
-        self.mycursor.execute(f'Update foods set Price = {p} where Name = "{n}"')
+        self.mycursor.execute(f'Update menu set Price = {p} where Name = "{n}"')
         self.db.commit()
         print(fontstyle.apply("Item updated successfully!!\n", 'Italic/green'))
         
@@ -309,8 +310,8 @@ class Manage():
             self.OwnerWindow()
 
     def addac(self):
-        id = input("Enter your Username: ")
-        passw = maskpass.askpass(prompt="Enter your Password:", mask="*")
+        id = input("Enter new Username: ")
+        passw = maskpass.askpass(prompt="Enter new Password:", mask="*")
 
         self.mycursor.execute('SELECT user FROM owner')
 
@@ -337,7 +338,9 @@ class Manage():
 
     def updatelogin(self):
         ask = maskpass.askpass(prompt="Enter your old Password:", mask="*")
-        if ask == self.ownerPASS:
+        self.mycursor.execute(f"Select password from owner where user = '{self.ownerID}'")
+        z = self.mycursor.fetchone()[0]
+        if ask == z:
             passw = maskpass.askpass(prompt="Enter new Password:", mask="*")
 
             self.mycursor.execute('SELECT user FROM owner')
@@ -370,7 +373,7 @@ class Manage():
                     self.mycursor.execute(f'delete from owner where user = "{id}"')
                     self.db.commit()
                     print(fontstyle.apply("Account removed successfully!!\n", 'Italic/green'))
-                    self.OwnerWindow(d = 1)
+                    self.OwnerWindow()
                     break
                 else:
                     print(fontstyle.apply("\nPassword is wrong!\n", 'Italic/red'))
